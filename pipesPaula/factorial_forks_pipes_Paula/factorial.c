@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char const *argv[])
 {
@@ -44,8 +45,10 @@ int main(int argc, char const *argv[])
 					resultado = resultado * i;
 				}
 				fprintf(stdout, "Hijo: A mi me ha salido %llu\n", resultado );
+				close(fd[0]);
 				//Enviar resultado
 				write(fd[1], &resultado, sizeof(unsigned long long int));
+				close(fd[1]);
 			break;
 		default: //proceso padre. Parte baja del factorial
 				for(int i=medio_objetivo; i>0; i--)
@@ -53,9 +56,11 @@ int main(int argc, char const *argv[])
 					resultado = resultado * i;
 				}
 				fprintf(stdout, "Padre: A mi me ha salido %llu\n", resultado );
+				close(fd[1]);
 				//Esperar resultado.
 				read(fd[0], &resultado_hijo, sizeof(unsigned long long int));
 				//Multiplicar los diferentes resultados
+				close(fd[0]);
 				wait(NULL);
 				resultado=resultado*resultado_hijo;
 				fprintf(stdout, "EL factorial de %d es: %llu\n", objetivo, resultado);
